@@ -4,7 +4,7 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 /*
  * Make sure to add the jar files to the classPath!!
- * 
+ *
  * C:\Users\ramag_000\Downloads\poi-bin-3.10.1-20140818\poi-3.10.1\poi-3.10.1-20140818.jar
 C:\Users\ramag_000\Downloads\poi-bin-3.10.1-20140818\poi-3.10.1\poi-examples-3.10.1-20140818.jar
 C:\Users\ramag_000\Downloads\poi-bin-3.10.1-20140818\poi-3.10.1\poi-excelant-3.10.1-20140818.jar
@@ -77,5 +77,4 @@ public class Document
         return fileText;
     }
 }
-
 
