@@ -1,15 +1,10 @@
 import java.awt.*;
-import java.awt.Color;
 import javax.swing.*;
-//import javax.swing.text.BadLocationException;
-//import javax.swing.text.DefaultHighlighter;
-//import javax.swing.text.Highlighter;
-//import javax.swing.text.Highlighter.HighlightPainter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.*;
-//import javax.swing.*;
-//import java.lang.reflect.Array;
 import java.util.*;
-//import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * EssayHelper
@@ -26,6 +21,7 @@ public class EssayHelper extends JApplet
     private final String RUN = "Redundancy";
     private final String FREQ = "Frequency";
     private final String CLEAR = "Clear";
+    private final String FILE = "File";
     //Area for building GUI
     private JTextArea inputField;
     //List of redundant phrases
@@ -33,25 +29,18 @@ public class EssayHelper extends JApplet
             "he/she", "firstly", "secondly", "thirdly", "got", "ain't", "interesting", "kind of", "literally", "lots",
             "lots of", "just", "the reason why is because", "till", "try", "try and", "very", "really", "quite"};
 
-    // Returns a formatted, alphabetical list of words and their frequencies
-    public static String allWords(TreeMap<String, Integer> frequency)
-    {
-        String words = "";
-        words += ("--------------------------------------------------\n");
-        words += ("(Frequency) Word\n");
 
-        for (String word : frequency.keySet())
-        {
-            words += "(" + (frequency.get(word)).toString() + ")                " + word + "\n";
-        }
-
-        words += ("--------------------------------------------------");
-
-        return words;
-    }
 
     public void init()
     {
+        try
+        {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }catch (Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
         // GUI elements are added to the applet content pane, so get it for us.
         Container contentPane = getContentPane();
         contentPane.setBackground(new Color(67, 166, 232));
@@ -97,6 +86,10 @@ public class EssayHelper extends JApplet
         clear.addActionListener(this);
         buttonPanel.add(clear);
 
+        JButton file = new JButton(FILE);
+        file.addActionListener(this);
+        buttonPanel.add(file);
+
         // add the buttons panel to the content pane
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
     }
@@ -116,31 +109,52 @@ public class EssayHelper extends JApplet
         {
             inputField.setText("");
 
-            WordFrequency.frequency.clear(); // prevents word counts from overlapping between Strings
-
         } else if (FREQ.equals(command))
         {
             checkRepetitiveness();
         } else if (RUN.equals(command))
         {
-            checkBadPhrases();
-            //calculateScore();
-
+            try
+            {
+                checkBadPhrases();
+            } catch (FileNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        else if (FILE.equals(command))
+        {
+            inputField.setText(getFilePath());
         }
     }
 
-    public void checkBadPhrases()
+    private String getFilePath()
+    {
+        String filePath = "";
+
+        final JFileChooser fc = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt", "doc", "docx");
+        fc.setFileFilter(filter);
+        int returnVal = fc.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            File file = fc.getSelectedFile();
+            filePath = file.getPath();
+        }
+
+        return filePath;
+    }
+
+    public void checkBadPhrases() throws FileNotFoundException
     {
         //initialize
-        String str = inputField.getText();
+        String input = inputField.getText();
+        input.replace("\\", "\\\\"); // fix accidental escapes in file-path
 
-        String[] words = str.split("\\s+");
-        //JOptionPane.showMessageDialog(null,words);
-        //JOptionPane.showMessageDialog(null,badWords);
-        /* Replace non-word characters with empty (delete)
-         * for(int i = 0; i<words.length; i++){
-        words[i] = words[i].replaceAll("[^\w]", "");
-        }*/
+        Document doc = new Document(input);
+        String str = doc.getText();
+
+        String[] words = str.split("\\s+"); // splits at whitespace
 
         for (String badWord : badWords)
         {
@@ -170,14 +184,13 @@ public class EssayHelper extends JApplet
     {
         String str = inputField.getText(); // Receives text from inputField
 
-        WordFrequency.readText(str); // Takes String from inputField and creates TreeMap with frequencies
-        inputField.setText(allWords(WordFrequency.frequency)); // Sets text to list of word frequencies
+        WordFrequency2 freq = new WordFrequency2();
+        freq.readText(str);
+        inputField.setText(freq.toString());
+        // Takes String from inputField and creates TreeMap with frequencies
+        // Sets text to list of word frequencies
     }
 
-    public void calculateScore()
-    {
-    }
 }
-
 
 
