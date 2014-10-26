@@ -1,27 +1,24 @@
-
-import java.util.ArrayList;
 import java.awt.*;
 import java.awt.Color;
 import javax.swing.*;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Highlighter;
-import javax.swing.text.Highlighter.HighlightPainter;
+//import javax.swing.text.BadLocationException;
+//import javax.swing.text.DefaultHighlighter;
+//import javax.swing.text.Highlighter;
+//import javax.swing.text.Highlighter.HighlightPainter;
 import java.awt.event.*;
-import javax.swing.*;
-import java.util.Scanner;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+//import javax.swing.*;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.io.*;
+
 /**
  * EssayHelper
  *
- * @authors Zac Guo, Harrison Leon, Rama Gosula
+ * @author Rama Gosula, Zac Guo, Harrison Leon (aka "The Flaming Monks")
  *
  * 2014-10-25
  */
+
 public class EssayHelper extends JApplet
         implements ActionListener
 {
@@ -29,7 +26,8 @@ public class EssayHelper extends JApplet
     private JTextArea inputField;
 
     //Button labels
-    private final String RUN = "Run";
+    private final String RUN = "Redundancy";
+    private final String FREQ = "Frequency";
     private final String CLEAR = "Clear";
 
     //List of redundant phrases
@@ -72,11 +70,15 @@ public class EssayHelper extends JApplet
         contentPane.add(centerPanel, BorderLayout.CENTER);
         // make a panel for the buttons
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(67, 166, 232));
+        buttonPanel.setBackground(new Color(52, 129, 180));
         // add the buttons to the button panel
         JButton run = new JButton(RUN);
         run.addActionListener(this);
         buttonPanel.add(run);
+
+        JButton freq = new JButton(FREQ);
+        run.addActionListener(this);
+        buttonPanel.add(freq);
 
         JButton clear = new JButton(CLEAR);
         clear.addActionListener(this);
@@ -100,11 +102,14 @@ public class EssayHelper extends JApplet
         if(CLEAR.equals(command))
             inputField.setText("");
             // uppercase button pressed
+        else if(FREQ.equals(command))
+        {
+            checkRepetitiveness();
+        }
         else if(RUN.equals(command))
         {
             checkBadPhrases();
-            checkRepetitiveness();
-            calculateScore();
+            //calculateScore();
 
         }
     }
@@ -112,12 +117,11 @@ public class EssayHelper extends JApplet
     public void checkBadPhrases()
     {
         //initialize
-        Scanner scan = new Scanner(System.in);
         String str = inputField.getText();
 
         String[] words = str.split("\\s+");
-        int length=words.length;
-        String[] matches = new String[length];
+        //int length=words.length;                                  [Unused code removed temporarily]
+        //String[] matches = new String[length];                    [Unused code removed temporarily]
         //JOptionPane.showMessageDialog(null,words);
         //JOptionPane.showMessageDialog(null,badWords);
         /* Replace non-word characters with empty (delete)
@@ -125,12 +129,15 @@ public class EssayHelper extends JApplet
         words[i] = words[i].replaceAll("[^\w]", "");
         }*/
 
-        for(int i=0; i<badWords.length; i++){
-            for(int j=0; j<words.length; j++){
+        for (String badWord : badWords)
+        {
+            for (int j = 0; j < words.length; j++)
+            {
                 String lower = words[j].toLowerCase();
-                if(lower.equals(badWords[i])){
-                    matches[j]=words[j];
-                    words[j]="*"+words[j].toUpperCase()+"*";
+                if (lower.equals(badWord))
+                {
+                    //matches[j] = words[j];                        [Unused code removed temporarily]
+                    words[j] = "*" + words[j].toUpperCase() + "*";
 
                 }
             }
@@ -138,9 +145,9 @@ public class EssayHelper extends JApplet
         //JOptionPane.showMessageDialog(null,matches);
         String paragraph="";
 
-        for( int k=0;k< words.length;k++)
+        for (String word : words)
         {
-            paragraph=paragraph + " " + words[k];
+            paragraph = paragraph + " " + word;
         }
 
         inputField.setText(paragraph);
@@ -148,9 +155,87 @@ public class EssayHelper extends JApplet
 
     public void checkRepetitiveness()
     {
+        inputField.setText(allWords(WordFrequency.getFrequency()));
+    }
+
+    // Prints out a formatted alphabetical list of words and their frequencies in a given TreeMap
+    public static String allWords (TreeMap<String, Integer> frequency)
+    {
+        String words = "";
+        words += ("--------------------------------------------------\n");
+        words += ("           Word    # of Times\n");
+
+        for (String word : frequency.keySet())
+        {
+            words +=(word + (frequency.get(word)).toString()) + "\n";
+        }
+
+        words += ("--------------------------------------------------");
+
+        return words;
     }
 
     public void calculateScore()
     {
+    }
+}
+
+
+class WordFrequency
+{
+    public static TreeMap<String, Integer> frequency = new TreeMap<String, Integer>();
+
+    // Returns TreeMap of word frequencies
+    public static TreeMap<String, Integer> getFrequency()
+    {return frequency;}
+
+
+    // Returns the count of a given key/word in a given TreeMap
+    public static int getCount (String word, TreeMap<String, Integer> frequency)
+    {
+        if (frequency.containsKey(word))
+        {
+            return frequency.get(word);
+        }
+
+        else // There are no occurrences of this word in the TreeMap
+        {
+            return 0;
+        }
+    }
+
+
+
+    /*
+    Parses through a .txt file word by word and adds frequencies to TreeMap
+    If first instance of word, it is added to the TreeMap with a count of 1
+    If not, the word's count is increased
+     */
+    public static void readTextFile(TreeMap<String, Integer> frequency)
+    {
+
+        Integer count;
+
+        try
+        {
+            BufferedReader br = new BufferedReader(new FileReader("D:\\Harrison\\Desktop\\sample.txt"));
+            String s;
+            while ((s=(br.readLine()))!=null)
+            {
+                for (String word : s.split("[\\W]"))
+                {
+                    word = word.toLowerCase();
+                    count = getCount(word, frequency);
+                    frequency.put(word, count+1);
+                }
+
+            }
+
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
     }
 }
