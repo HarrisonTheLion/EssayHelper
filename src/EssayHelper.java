@@ -1,10 +1,13 @@
 import java.awt.*;
+
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import java.awt.event.*;
 import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 /**
  * EssayHelper
@@ -18,18 +21,15 @@ public class EssayHelper extends JApplet
         implements ActionListener
 {
     //Button labels
-    private final String RUN = "Redundancy";
-    private final String FREQ = "Frequency";
+    private final String RUN = "Run";
     private final String CLEAR = "Clear";
-    private final String FILE = "File";
+    private final String FILE = "Select File";
     //Area for building GUI
     private JTextArea inputField;
     //List of redundant phrases
     private String[] badWords = {"and also", "and/or", "as to whether", "basically", "essentially", "totally", "each and every", "etc",
             "he/she", "firstly", "secondly", "thirdly", "got", "ain't", "interesting", "kind of", "literally", "lots",
             "lots of", "just", "the reason why is because", "till", "try", "try and", "very", "really", "quite"};
-
-
 
     public void init()
     {
@@ -78,10 +78,6 @@ public class EssayHelper extends JApplet
         run.addActionListener(this);
         buttonPanel.add(run);
 
-        JButton freq = new JButton(FREQ);
-        freq.addActionListener(this);
-        buttonPanel.add(freq);
-
         JButton clear = new JButton(CLEAR);
         clear.addActionListener(this);
         buttonPanel.add(clear);
@@ -109,25 +105,41 @@ public class EssayHelper extends JApplet
         {
             inputField.setText("");
 
-        } else if (FREQ.equals(command))
+        }  else if (RUN.equals(command))
         {
             checkRepetitiveness();
-        } else if (RUN.equals(command))
-        {
-            try
-            {
-                checkBadPhrases();
-            } catch (FileNotFoundException e)
-            {
-                e.printStackTrace();
-            }
+            checkBadPhrases();
         }
         else if (FILE.equals(command))
         {
-            inputField.setText(getFilePath());
+            try {
+                inputField.setText(getFileText());
+            } catch (FileNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
+    private String getFileText() throws FileNotFoundException
+    {
+        //String filePath = "";
+        File file = null;
 
+        final JFileChooser fc = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt", "doc", "docx");
+        fc.setFileFilter(filter);
+        int returnVal = fc.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION)
+        {
+            file = fc.getSelectedFile();
+        }
+        // input.replace("\\", "\\\\"); // fix accidental escapes in file-path
+
+        Document doc = new Document(file.getPath());
+        String str = doc.getText();
+
+        return str;
+    }
     private String getFilePath()
     {
         String filePath = "";
@@ -145,23 +157,19 @@ public class EssayHelper extends JApplet
         return filePath;
     }
 
-    public void checkBadPhrases() throws FileNotFoundException
+    public void checkBadPhrases()
     {
         //initialize
-        String input = inputField.getText();
-        input.replace("\\", "\\\\"); // fix accidental escapes in file-path
 
-        Document doc = new Document(input);
-        String str = doc.getText();
-
+        String str = inputField.getText();
         String[] words = str.split("\\s+"); // splits at whitespace
 
         for (String badWord : badWords)
         {
             for (int j = 0; j < words.length; j++)
             {
-                String lower = words[j].toLowerCase();
-                if (lower.equals(badWord))
+//                String lower = words[j].toLowerCase();
+                if (words[j].equalsIgnoreCase(badWord))
                 {
                     //matches[j] = words[j];                        [Unused code removed temporarily]
                     words[j] = "*" + words[j].toUpperCase() + "*";
@@ -171,10 +179,17 @@ public class EssayHelper extends JApplet
         }
         //JOptionPane.showMessageDialog(null,matches);
         String paragraph = "";
-
+        int i = 0;
         for (String word : words)
         {
-            paragraph = paragraph + " " + word;
+
+            paragraph += word;
+            if(i%2 == 0){
+                paragraph += "\t\t";
+            }else{
+                paragraph += "\n";
+            }
+            i++;
         }
 
         inputField.setText(paragraph);
@@ -190,6 +205,6 @@ public class EssayHelper extends JApplet
         // Takes String from inputField and creates TreeMap with frequencies
         // Sets text to list of word frequencies
     }
+    
 
 }
-
