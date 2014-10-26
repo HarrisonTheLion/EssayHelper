@@ -33,7 +33,9 @@ public class EssayHelper extends JApplet
     private final String CLEAR = "Clear";
 
     //List of redundant phrases
-    private String[] badWords={"and also", "and/or", "as to whether", "basically"};
+    private String[] badWords={"and also", "and/or", "as to whether", "basically", "essentially", "totally", "each and every", "etc",
+            "he/she", "firstly", "secondly", "thirdly", "got", "ain't", "interesting", "kind of", "literally", "lots",
+            "lots of", "just", "the reason why is because", "till", "try", "try and", "very", "really", "quite"};
 
     public void init()
     {
@@ -109,7 +111,7 @@ public class EssayHelper extends JApplet
 
     public void checkBadPhrases()
     {
-        //initialize 
+        //initialize
         Scanner scan = new Scanner(System.in);
         String str = inputField.getText();
 
@@ -125,7 +127,8 @@ public class EssayHelper extends JApplet
 
         for(int i=0; i<badWords.length; i++){
             for(int j=0; j<words.length; j++){
-                if(words[j].equals(badWords[i])){
+                String lower = words[j].toLowerCase();
+                if(lower.equals(badWords[i])){
                     matches[j]=words[j];
                     words[j]="*"+words[j].toUpperCase()+"*";
 
