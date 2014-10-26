@@ -1,8 +1,8 @@
-import org.apache.poi.hwpf.Word2Forrest;
+/* import org.apache.poi.hwpf.Word2Forrest;
 import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-
+*/
 /*
  * Make sure to add the jar files to the classPath!!
  * 
@@ -18,10 +18,10 @@ C:\Users\ramag_000\Downloads\poi-bin-3.10.1-20140818\poi-3.10.1\ooxml-lib\xmlbea
 
  */
 
-import java.io.*;
+/* import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Scanner;
+//import java.util.Scanner;
 
 public class Document
 {
@@ -79,4 +79,4 @@ public class Document
     }
 }
 
-
+*/

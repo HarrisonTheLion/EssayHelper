@@ -15,34 +15,49 @@ import java.util.*;
  * EssayHelper
  *
  * @author Rama Gosula, Zac Guo, Harrison Leon (aka "The Flaming Monks")
- *
- * 2014-10-25
+ *         <p/>
+ *         2014-10-25
  */
 
 public class EssayHelper extends JApplet
         implements ActionListener
 {
-    //Area for building GUI
-    private JTextArea inputField;
-
     //Button labels
     private final String RUN = "Redundancy";
     private final String FREQ = "Frequency";
     private final String CLEAR = "Clear";
-
+    //Area for building GUI
+    private JTextArea inputField;
     //List of redundant phrases
-    private String[] badWords={"and also", "and/or", "as to whether", "basically", "essentially", "totally", "each and every", "etc",
+    private String[] badWords = {"and also", "and/or", "as to whether", "basically", "essentially", "totally", "each and every", "etc",
             "he/she", "firstly", "secondly", "thirdly", "got", "ain't", "interesting", "kind of", "literally", "lots",
             "lots of", "just", "the reason why is because", "till", "try", "try and", "very", "really", "quite"};
 
+    // Returns a formatted, alphabetical list of words and their frequencies
+    public static String allWords(TreeMap<String, Integer> frequency)
+    {
+        String words = "";
+        words += ("--------------------------------------------------\n");
+        words += ("(Frequency) Word\n");
+
+        for (String word : frequency.keySet())
+        {
+            words += "(" + (frequency.get(word)).toString() + ")                " + word + "\n";
+        }
+
+        words += ("--------------------------------------------------");
+
+        return words;
+    }
+
     public void init()
     {
-        // GUI elements are added to the applet's content pane, so get it for us.
+        // GUI elements are added to the applet content pane, so get it for us.
         Container contentPane = getContentPane();
         contentPane.setBackground(new Color(67, 166, 232));
 
         // set a layout with some spacing
-        contentPane.setLayout(new BorderLayout(12,12));
+        contentPane.setLayout(new BorderLayout(15, 15));
         //window size
         setSize(600, 600);
 
@@ -57,20 +72,18 @@ public class EssayHelper extends JApplet
         JLabel prompt = new JLabel("Enter your text:  ");
         prompt.setFont(new Font("Helvetica", Font.PLAIN, 16));
         centerPanel.add(prompt);
-        inputField = new JTextArea("Paste Here");
 
-        //add scrolling capability
-
-        inputField.setFont(new Font("Serif", Font.ITALIC, 16));
-        //make sure text doesn't go off the screen
-        inputField.setLineWrap(true);
+        inputField = new JTextArea("Paste Here", 10, 10);
+        inputField.setLineWrap(true); // makes sure text doesn't go off the screen
         inputField.setWrapStyleWord(true);
-        inputField.setPreferredSize( new Dimension( 400, 400 ) );
-        centerPanel.add(inputField);
-        contentPane.add(centerPanel, BorderLayout.CENTER);
+        JScrollPane scroll = new JScrollPane(inputField); // adds a scroll bar to input window
+        add(scroll, BorderLayout.CENTER);
+        inputField.setFont(new Font("Serif", Font.ITALIC, 16));
+
         // make a panel for the buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(new Color(52, 129, 180));
+
         // add the buttons to the button panel
         JButton run = new JButton(RUN);
         run.addActionListener(this);
@@ -91,7 +104,7 @@ public class EssayHelper extends JApplet
     public String getAppletInfo()
     {
         return "Title: Essay Helper  \n" +
-                "Author: Zac Guo, Harrison Leon, Rama Gosula  \n" +
+                "Author: Rama Gosula, Zac Guo, Harrison Leon  \n" +
                 "An applet to improve your writing. ";
     }
 
@@ -99,14 +112,16 @@ public class EssayHelper extends JApplet
     {
         String command = evt.getActionCommand();
         // if clear button pressed
-        if(CLEAR.equals(command))
+        if (CLEAR.equals(command))
+        {
             inputField.setText("");
-            // uppercase button pressed
-        else if(FREQ.equals(command))
+
+            WordFrequency.frequency.clear(); // prevents word counts from overlapping between Strings
+
+        } else if (FREQ.equals(command))
         {
             checkRepetitiveness();
-        }
-        else if(RUN.equals(command))
+        } else if (RUN.equals(command))
         {
             checkBadPhrases();
             //calculateScore();
@@ -120,8 +135,6 @@ public class EssayHelper extends JApplet
         String str = inputField.getText();
 
         String[] words = str.split("\\s+");
-        //int length=words.length;                                  [Unused code removed temporarily]
-        //String[] matches = new String[length];                    [Unused code removed temporarily]
         //JOptionPane.showMessageDialog(null,words);
         //JOptionPane.showMessageDialog(null,badWords);
         /* Replace non-word characters with empty (delete)
@@ -143,10 +156,12 @@ public class EssayHelper extends JApplet
             }
         }
         //JOptionPane.showMessageDialog(null,matches);
-        String paragraph="";
+        String paragraph = "";
 
         for (String word : words)
+        {
             paragraph = paragraph + " " + word;
+        }
 
         inputField.setText(paragraph);
     }
@@ -154,10 +169,9 @@ public class EssayHelper extends JApplet
     public void checkRepetitiveness()
     {
         String str = inputField.getText(); // Receives text from inputField
-        TreeMap<String, Integer> map = WordFrequency.frequency;
 
-        WordFrequency.readText(map, str); // Takes String from inputField and creates TreeMap with frequencies
-        inputField.setText(WordFrequency.allWords((map))); // Sets text to list of word frequencies
+        WordFrequency.readText(str); // Takes String from inputField and creates TreeMap with frequencies
+        inputField.setText(allWords(WordFrequency.frequency)); // Sets text to list of word frequencies
     }
 
     public void calculateScore()
