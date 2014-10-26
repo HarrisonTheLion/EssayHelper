@@ -193,4 +193,3 @@ public class EssayHelper extends JApplet
 
 }
 
-
