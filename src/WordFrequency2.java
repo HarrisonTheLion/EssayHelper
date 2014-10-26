@@ -40,26 +40,29 @@ public class WordFrequency2 {
             {
 
                 if(!isNumeric(word) && word.trim().length() > 0)
-                word = word.toLowerCase();//Remember, lowercase word here is a String!
-                if(wordList.isEmpty()){
-                    wordList.add(new Word(word));
-                }else{
-                    boolean matched = false;
-                    int i = 0;
-
-                    int wordListSize = wordList.size();
-
-                    while (!matched && i < wordListSize){
-                        Word oldWord = wordList.get(i);
-                        //If any old word matches, increment, and break out
-                        if (oldWord.getText().equalsIgnoreCase(word)){
-                            oldWord.incrementCount();
-                            matched = true;
-                        }
-                        i++;
-                    }//without a match, add a new word
-                    if (!matched){
+                {
+                    word = word.toLowerCase();//Remember, lowercase word here is a String!
+                    if(wordList.isEmpty()){
                         wordList.add(new Word(word));
+                    }else{
+                        boolean matched = false;
+                        int i = 0;
+
+                        int wordListSize = wordList.size();
+
+                        while (!matched && i < wordListSize){
+                            Word oldWord = wordList.get(i);
+                            //If any old word matches, increment, and break out
+                            if (oldWord.getText().equalsIgnoreCase(word)){
+                                oldWord.incrementCount();
+                                matched = true;
+                            }
+                            i++;
+                        }//without a match, add a new word
+                        if (!matched){
+                            wordList.add(new Word(word));
+                        }
+
                     }
 
                 }
@@ -78,7 +81,7 @@ public class WordFrequency2 {
 
         output += "Words used:\n";
         for (Word word : wordList){
-            output += String.format("\n%s\t%d", word.getText(),word.getCount());
+            output += String.format("\n%s\t\t%d", word.getText(),word.getCount());
         }
         return output;
 
