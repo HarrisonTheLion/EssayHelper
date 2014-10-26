@@ -4,15 +4,8 @@ public class WordFrequency
 {
     public static TreeMap<String, Integer> frequency = new TreeMap<String, Integer>();
 
-    // Returns TreeMap of word frequencies
-    public static TreeMap<String, Integer> getFrequency()
-    {
-        return frequency;
-    }
-
-
     // Returns the count of a given key/word in a given TreeMap
-    public static int getCount (String word, TreeMap<String, Integer> frequency)
+    public static int getCount(String word, TreeMap<String, Integer> frequency)
     {
         if (frequency.containsKey(word))
         {
@@ -39,7 +32,7 @@ public class WordFrequency
     }
 
     // Returns a String of an alphabetical list of words and their frequencies in a given TreeMap
-    public static String allWords (TreeMap<String, Integer> frequency)
+    public static String allWords(TreeMap<String, Integer> frequency)
     {
         String words = "";
         words += ("--------------------------------------------------\n");
