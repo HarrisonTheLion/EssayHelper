@@ -1,9 +1,12 @@
+/*
 import java.util.TreeMap;
 
+*/
 /**
  * This class helps to calculate the frequency of words in a given String (or text file)
  * Highly common English words, along with numeric characters
- */
+ *//*
+
 public class WordFrequency
 {
     public static TreeMap<String, Integer> frequency = new TreeMap<String, Integer>();
@@ -48,21 +51,6 @@ public class WordFrequency
 
     }
 
-    // Returns a String of an alphabetical list of words and their frequencies in a given TreeMap
-    public static String allWords(TreeMap<String, Integer> frequency)
-    {
-        String words = "";
-        words += ("--------------------------------------------------\n");
-        words += ("Word (# of Times)\n");
 
-        // Adds word (frequency) to a new line
-        for (String word : frequency.keySet())
-        {
-            words += word + "  (" + (frequency.get(word)).toString() + ")" + "\n";
-        }
-
-        words += ("--------------------------------------------------");
-
-        return words;
-    }
 }
+*/
