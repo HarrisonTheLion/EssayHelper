@@ -146,9 +146,7 @@ public class EssayHelper extends JApplet
         String paragraph="";
 
         for (String word : words)
-        {
             paragraph = paragraph + " " + word;
-        }
 
         inputField.setText(paragraph);
     }
@@ -156,26 +154,10 @@ public class EssayHelper extends JApplet
     public void checkRepetitiveness()
     {
         String str = inputField.getText(); // Receives text from inputField
+        TreeMap<String, Integer> map = WordFrequency.frequency;
 
-        WordFrequency.readText(WordFrequency.frequency, str); // Takes String from inputField and creates TreeMap with frequencies
-        inputField.setText(allWords(WordFrequency.frequency)); // Sets text to list of word frequencies
-    }
-
-    // Prints out a formatted alphabetical list of words and their frequencies in a given TreeMap
-    public static String allWords (TreeMap<String, Integer> frequency)
-    {
-        String words = "";
-        words += ("--------------------------------------------------\n");
-        words += ("           Word    # of Times\n");
-
-        for (String word : frequency.keySet())
-        {
-            words +=(word + (frequency.get(word)).toString()) + "\n";
-        }
-
-        words += ("--------------------------------------------------");
-
-        return words;
+        WordFrequency.readText(map, str); // Takes String from inputField and creates TreeMap with frequencies
+        inputField.setText(WordFrequency.allWords((map))); // Sets text to list of word frequencies
     }
 
     public void calculateScore()
