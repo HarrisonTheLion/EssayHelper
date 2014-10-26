@@ -7,9 +7,9 @@ import javax.swing.*;
 //import javax.swing.text.Highlighter.HighlightPainter;
 import java.awt.event.*;
 //import javax.swing.*;
-import java.lang.reflect.Array;
+//import java.lang.reflect.Array;
 import java.util.*;
-import java.io.*;
+//import java.io.*;
 
 /**
  * EssayHelper
@@ -77,7 +77,7 @@ public class EssayHelper extends JApplet
         buttonPanel.add(run);
 
         JButton freq = new JButton(FREQ);
-        run.addActionListener(this);
+        freq.addActionListener(this);
         buttonPanel.add(freq);
 
         JButton clear = new JButton(CLEAR);
@@ -155,7 +155,10 @@ public class EssayHelper extends JApplet
 
     public void checkRepetitiveness()
     {
-        inputField.setText(allWords(WordFrequency.getFrequency()));
+        String str = inputField.getText(); // Receives text from inputField
+
+        WordFrequency.readText(WordFrequency.frequency, str); // Takes String from inputField and creates TreeMap with frequencies
+        inputField.setText(allWords(WordFrequency.frequency)); // Sets text to list of word frequencies
     }
 
     // Prints out a formatted alphabetical list of words and their frequencies in a given TreeMap
@@ -181,61 +184,4 @@ public class EssayHelper extends JApplet
 }
 
 
-class WordFrequency
-{
-    public static TreeMap<String, Integer> frequency = new TreeMap<String, Integer>();
 
-    // Returns TreeMap of word frequencies
-    public static TreeMap<String, Integer> getFrequency()
-    {return frequency;}
-
-
-    // Returns the count of a given key/word in a given TreeMap
-    public static int getCount (String word, TreeMap<String, Integer> frequency)
-    {
-        if (frequency.containsKey(word))
-        {
-            return frequency.get(word);
-        }
-
-        else // There are no occurrences of this word in the TreeMap
-        {
-            return 0;
-        }
-    }
-
-
-
-    /*
-    Parses through a .txt file word by word and adds frequencies to TreeMap
-    If first instance of word, it is added to the TreeMap with a count of 1
-    If not, the word's count is increased
-     */
-    public static void readTextFile(TreeMap<String, Integer> frequency)
-    {
-
-        Integer count;
-
-        try
-        {
-            BufferedReader br = new BufferedReader(new FileReader("D:\\Harrison\\Desktop\\sample.txt"));
-            String s;
-            while ((s=(br.readLine()))!=null)
-            {
-                for (String word : s.split("[\\W]"))
-                {
-                    word = word.toLowerCase();
-                    count = getCount(word, frequency);
-                    frequency.put(word, count+1);
-                }
-
-            }
-
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-
-    }
-}
