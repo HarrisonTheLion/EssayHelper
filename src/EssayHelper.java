@@ -1,41 +1,60 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import java.awt.event.*;
-import java.util.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.List;
+import com.sun.deploy.util.StringUtils;
 
 /**
  * EssayHelper
  *
  * @author Rama Gosula, Zac Guo, Harrison Leon (aka "The Flaming Monks")
- *         <p/>
- *         2014-10-25
+ *         <p>
+ *         Originally created for "TrojanHacks" Hackathon, held by ACM at USC
+ *         First created 10/25/14 to 10/26/14
+ *         Last updated 10/29/14
+ *         </p>
  */
 
-public class EssayHelper extends JApplet
-        implements ActionListener
+public class EssayHelper extends JApplet implements ActionListener
 {
-    //Button labels
-    private final String RUN = "Run";
+    // Button labels
+    private final String REDUNDANCY = "Redundancy";
+    private final String FREQUENCY = "Frequency";
     private final String CLEAR = "Clear";
     private final String FILE = "Select File";
-    //Area for building GUI
+
+    // Area for building GUI
     private JTextArea inputField;
-    //List of redundant phrases
-    private String[] badWords = {"and also", "and/or", "as to whether", "basically", "essentially", "totally", "each and every", "etc",
+
+    // List of redundant phrases
+    private List<String> badPhrases = new ArrayList<String>(Arrays.asList("and also", "and/or", "as to whether", "basically", "essentially", "totally", "each and every", "etc",
             "he/she", "firstly", "secondly", "thirdly", "got", "ain't", "interesting", "kind of", "literally", "lots",
-            "lots of", "just", "the reason why is because", "till", "try", "try and", "very", "really", "quite"};
+            "lots of", "just", "the reason why is because", "till", "try", "try and", "very", "really", "quite"));
+
+    /* private List<String> commonWords = new ArrayList<String>(Arrays.asList("the", "be", "to", "og", "and", "and", "a", "in", "that",
+            "have", "I", "it", "for", "not", "on", "with", "he", "as",
+            "you", "do", "at", "this", "but", "his", "by", "from"));
+    */
+
+    String patternString = "\\b(" + StringUtils.join(badPhrases, "|") + ")\\b";
+    Pattern pattern = Pattern.compile(patternString);
 
     public void init()
     {
         try
         {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+
         }catch (Exception ex)
         {
             ex.printStackTrace();
@@ -67,16 +86,20 @@ public class EssayHelper extends JApplet
         inputField.setWrapStyleWord(true);
         JScrollPane scroll = new JScrollPane(inputField); // adds a scroll bar to input window
         add(scroll, BorderLayout.CENTER);
-        inputField.setFont(new Font("Serif", Font.ITALIC, 16));
+        inputField.setFont(new Font("Times New Roman", Font.ITALIC, 16));
 
-        // make a panel for the buttons
+        // Makes a panel for the buttons
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(new Color(52, 129, 180));
 
-        // add the buttons to the button panel
-        JButton run = new JButton(RUN);
-        run.addActionListener(this);
-        buttonPanel.add(run);
+        // Adds four buttons
+        JButton redundancy = new JButton(REDUNDANCY);
+        redundancy.addActionListener(this);
+        buttonPanel.add(redundancy);
+
+        JButton frequency = new JButton(FREQUENCY);
+        frequency.addActionListener(this);
+        buttonPanel.add(frequency);
 
         JButton clear = new JButton(CLEAR);
         clear.addActionListener(this);
@@ -86,7 +109,7 @@ public class EssayHelper extends JApplet
         file.addActionListener(this);
         buttonPanel.add(file);
 
-        // add the buttons panel to the content pane
+        // Adds the buttons panel to the content pane
         contentPane.add(buttonPanel, BorderLayout.SOUTH);
     }
 
@@ -97,102 +120,88 @@ public class EssayHelper extends JApplet
                 "An applet to improve your writing. ";
     }
 
+    // Calls certain methods depending on which buttons are pressed
     public void actionPerformed(ActionEvent evt)
     {
         String command = evt.getActionCommand();
-        // if clear button pressed
-        if (CLEAR.equals(command))
-        {
-            inputField.setText("");
 
-        }  else if (RUN.equals(command))
-        {
-            checkRepetitiveness();
+        if (REDUNDANCY.equals(command)) // Redundancy button is pressed
             checkBadPhrases();
-        }
-        else if (FILE.equals(command))
+        else if (FREQUENCY.equals(command)) // Frequency button is pressed
+            checkRepetitiveness();
+        else if (CLEAR.equals(command)) // Clear button is pressed
+            inputField.setText("");
+        else if (FILE.equals(command)) // File button is pressed
         {
             try {
                 inputField.setText(getFileText());
             } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
     }
+
     private String getFileText() throws FileNotFoundException
     {
-        //String filePath = "";
         File file = null;
 
         final JFileChooser fc = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt", "doc", "docx");
         fc.setFileFilter(filter);
+
         int returnVal = fc.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION)
         {
             file = fc.getSelectedFile();
         }
-        // input.replace("\\", "\\\\"); // fix accidental escapes in file-path
 
-        Document doc = new Document(file.getPath());
-        String str = doc.getText();
-
-        return str;
-    }
-    private String getFilePath()
-    {
-        String filePath = "";
-
-        final JFileChooser fc = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt", "doc", "docx");
-        fc.setFileFilter(filter);
-        int returnVal = fc.showOpenDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION)
-        {
-            File file = fc.getSelectedFile();
-            filePath = file.getPath();
-        }
-
-        return filePath;
+        Document doc = new Document(file != null ? file.getPath() : null);
+        return doc.getText();
     }
 
     public void checkBadPhrases()
     {
-        //initialize
+
 
         String str = inputField.getText();
-        String[] words = str.split("\\s+"); // splits at whitespace
+        String[] phrases = str.split("[,.;()/!?]"); // splits at punctuation
+        int start, end;
+        String first, mid, last;
 
-        for (String badWord : badWords)
+        for (int i=0; i < phrases.length; i++)
         {
-            for (int j = 0; j < words.length; j++)
-            {
-//                String lower = words[j].toLowerCase();
-                if (words[j].equalsIgnoreCase(badWord))
-                {
-                    //matches[j] = words[j];                        [Unused code removed temporarily]
-                    words[j] = "*" + words[j].toUpperCase() + "*";
+            List<Integer> indexes = hasBadPhrase(phrases[i]);
 
+            if (indexes.size() > 0)
+            {
+                for (int j = 0; j < indexes.size(); j+=2)
+                {
+                    start = indexes.get(j);
+                    end = indexes.get(j + 1);
+                    first = phrases[i].substring(0, start);
+                    mid = phrases[i].substring(start, end);
+                    last = phrases[i].substring(end);
+
+                    phrases[i] = first + "***" + mid.toUpperCase() + "***" + last;
                 }
             }
         }
-        //JOptionPane.showMessageDialog(null,matches);
-        String paragraph = "";
-        int i = 0;
-        for (String word : words)
-        {
 
-            paragraph += word;
-            if(i%2 == 0){
-                paragraph += "\t\t";
-            }else{
-                paragraph += "\n";
-            }
-            i++;
+        inputField.setText(Arrays.toString(phrases));
+    }
+
+    public List<Integer> hasBadPhrase(String str)
+    {
+        List<Integer> result = new ArrayList<Integer>();
+        Matcher matcher = pattern.matcher(str);
+
+        while (matcher.find())
+        {
+            result.add(matcher.start());
+            result.add(matcher.end());
         }
 
-        inputField.setText(paragraph);
+        return result;
     }
 
     public void checkRepetitiveness()
@@ -202,9 +211,7 @@ public class EssayHelper extends JApplet
         WordFrequency2 freq = new WordFrequency2();
         freq.readText(str);
         inputField.setText(freq.toString());
-        // Takes String from inputField and creates TreeMap with frequencies
-        // Sets text to list of word frequencies
+
     }
-    
 
 }
