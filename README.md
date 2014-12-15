@@ -10,6 +10,4 @@ The source code for the Java Applet can be found in the "src" folder.
 
 ============================================
 Created for TrojanHacks 2014 by "The Flaming Monks":
-  Harrison Leon, Zac Guo, Rama Gosula
-
-Most Recent Update: Oct 29, 2014
+  Harrison Leon, Rama Gosula, Zac Guo 
